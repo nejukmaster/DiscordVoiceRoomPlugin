@@ -1,0 +1,14 @@
+name: DiscordPlugin
+main: com.nejukmaster.discordplugin.discordplugin.main
+version: 1.0
+api-version: 1.16
+commands: 
+  voice: 
+    description: "Discord Voice Manager"
+  discord: 
+    description: "Discord Manager"
+  call: 
+    description: "Discord Voice Call Manager"
+permissions: 
+  DiscordOper: 
+    default: op
