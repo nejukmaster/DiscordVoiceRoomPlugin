@@ -31,7 +31,6 @@ public class MinecraftEvents implements Listener{
 	public static ArrayList<VoiceRoom> voice_rooms = new ArrayList<>();
 	public static ArrayList<CallRoom> call_rooms = new ArrayList<>();
 	
-	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void PlayerInteractedHook(final PlayerInteractEvent e) {
 		Player p = e.getPlayer();
