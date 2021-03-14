@@ -46,7 +46,7 @@ public class MinecraftEvents implements Listener{
 				if(a.equals(Action.LEFT_CLICK_BLOCK)) {
 					pos2 = b.getLocation();
 					p.sendMessage("pos2가 "+pos2+"로 설정되었습니다.");
-				}
+				} 
 				e.setCancelled(true);
 			}
 		}
