@@ -37,7 +37,7 @@ public class MinecraftEvents implements Listener{
 		Player p = e.getPlayer();
 		Action a = e.getAction();
 		Block b = e.getClickedBlock();
-		ItemStack is = p.getItemInHand().clone();
+		ItemStack is = p.getInventory().getItemInMainHand().clone();
 		if(e.getHand() == EquipmentSlot.HAND) {
 			if(is.getType().equals(Material.WOODEN_SHOVEL)&&p.hasPermission(main.discord_oper)) {
 				if(a.equals(Action.RIGHT_CLICK_BLOCK)) {
@@ -59,8 +59,9 @@ public class MinecraftEvents implements Listener{
 		VoiceRoom[] r = e.getRooms();
 		if(Utils.getPerson(p)!=null) {
 			Person per = Utils.getPerson(p);
-			if(r[1] != null && !per.isCalling)
+			if(r[1] != null && !per.isCalling) {
 				per.setVoiceChannel(r[1].getChannel());
+			}
 			else
 				per.setVoiceChannel(main.jda.getVoiceChannelByName("MAIN HALL", true).get(0));
 		}
