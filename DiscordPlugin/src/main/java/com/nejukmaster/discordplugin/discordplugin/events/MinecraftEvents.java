@@ -62,7 +62,7 @@ public class MinecraftEvents implements Listener{
 				per.setVoiceChannel(r[1].getChannel());
 			}
 			else
-				per.setVoiceChannel(main.jda.getVoiceChannelByName("MAIN HALL", true).get(0));
+				per.setVoiceChannel(main.jda.getVoiceChannelsByName("MAIN HALL", true).get(0));
 		}
 	}
 	

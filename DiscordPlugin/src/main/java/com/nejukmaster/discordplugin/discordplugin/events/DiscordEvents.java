@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import com.nejukmaster.discordplugin.discordplugin.Person;
 import com.nejukmaster.discordplugin.discordplugin.Utils;
 import com.nejukmaster.discordplugin.discordplugin.main;
+import com.nejukmaster.discordplugin.discordplugin.api.PluginReadyEvent;
 
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Guild;

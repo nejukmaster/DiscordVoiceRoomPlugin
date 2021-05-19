@@ -18,6 +18,9 @@ public class VoiceCmds implements CommandExecutor{
 		// TODO Auto-generated method stub
 		if(sender instanceof Player) {
 			Player p = (Player)sender;
+			if(args[0].equalsIgnoreCase("debug"))
+				for(VoiceRoom vr : MinecraftEvents.voice_rooms)
+					p.sendMessage(vr.getID() + ":" + vr.getName() + ":" + vr.getLocation()[0] + ":" + vr.getLocation()[1]);
 			if(args[0].equalsIgnoreCase("create")&&p.hasPermission(main.discord_oper)) {
 				if(args.length < 2) {
 					p.sendMessage("/voice create [room name]");

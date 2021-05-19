@@ -95,7 +95,7 @@ public final class main extends JavaPlugin{
 	@Override
 	public void onDisable(){
 		getLogger().info("Discord Plugin Disable.");
-		for(VoiceChannel v : jda.getVoiceChannelByName("call", true))
+		for(VoiceChannel v : jda.getVoiceChannelsByName("call", true))
 			v.delete().complete();
 		Utils.saveUsers();
 		VoiceUtils.saveVoiceRoom();

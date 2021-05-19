@@ -10,23 +10,23 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 
 public class JdaAPI {
 	
-	public JDA getJDA() {
+	public static JDA getJDA() {
 		return main.jda;
 	}
 	
-	public Guild getGuild() {
+	public static Guild getGuild() {
 		return main.jda.getGuildById(main.guild_id);
 	}
 	
-	public Category getCategory() {
+	public static Category getCategory() {
 		return main.main_category;
 	}
 	
-	public VoiceChannel getMainHall() {
+	public static VoiceChannel getMainHall() {
 		return main.main_hall;
 	}
 	
-	public TextChannel getMinecraftChat() {
+	public static TextChannel getMinecraftChat() {
 		return main.minecraft_chat;
 	}
 

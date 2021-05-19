@@ -24,7 +24,6 @@ public class CallRoom extends VoiceRoom{
 	int wait_time;
 	RepeatingTask repeatingTask;
 
-	@SuppressWarnings("deprecation")
 	public CallRoom(Category category, Person call, String receive_nick) {
 		super(category, "call", null, null);
 		this.receive = null;

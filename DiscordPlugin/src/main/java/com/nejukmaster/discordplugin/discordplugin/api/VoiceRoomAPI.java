@@ -11,14 +11,14 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 
 public class VoiceRoomAPI {
 	
-	public VoiceRoom getVoiceRoomById(String id) {
+	public static VoiceRoom getVoiceRoomById(String id) {
 		for(VoiceRoom vr : MinecraftEvents.voice_rooms)
 			if(vr.getID().equals(id))
 				return vr;
 		return null;
 	}
 	
-	public VoiceRoom getVoiceRoomByChannel(VoiceChannel vc) {
+	public static VoiceRoom getVoiceRoomByChannel(VoiceChannel vc) {
 		for(VoiceRoom vr : MinecraftEvents.voice_rooms)
 			if(vr.getChannel().equals(vc))
 				return vr;
