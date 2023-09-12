@@ -98,6 +98,7 @@ public Person(String nick, String id) {
 	this.discord_id = id;
 }
 
+//해당 플레이어의 음성채널을 옮기는 함수입니다.
 public void setVoiceChannel(VoiceChannel vc) {
 	Guild guild = main.main_category.getGuild();
 	try {
@@ -107,22 +108,27 @@ public void setVoiceChannel(VoiceChannel vc) {
 	}
 }
 
+//디스코드 User를 반환합니다.
 public User getUser() {
 	return main.jda.getUserById(this.discord_id);
 }
 
+//게임 내의 플레이어를 반환합니다.
 public Player getPlayer() {
 	return Bukkit.getPlayer(this.mc_nick);
 }
 
+//닉네임을 반환합니다.
 public String getNick() {
 	return this.mc_nick;
 }
 
+//디스코드 아이디를 반환합니다.
 public String getID() {
 	return this.discord_id;
 }
 
+//Call 상태를 바꿉니다.
 public Person setCalling(boolean calling) {
 	this.isCalling = calling;
 	return this;
