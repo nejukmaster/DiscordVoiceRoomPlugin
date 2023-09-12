@@ -136,3 +136,35 @@ public Person setCalling(boolean calling) {
 
 }
 ```
+이로써 Person클래스를 통해 플레이어의 정보를 저장하여 인게임 플레이어와 디스코드 유저에 접근할 수 있게 되었습니다. 다음으로 게임내 커멘드를 사용해 유저를 등록하는 기능을 구현합니다.
+_[mainCmds.java](https://github.com/nejukmaster/DiscordVoiceRoomPlugin/blob/master/DiscordPlugin/src/main/java/com/nejukmaster/discordplugin/discordplugin/mainCmds.java)_
+```java
+
+...
+public class mainCmds implements CommandExecutor{
+
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		if(sender instanceof Player) {	//콘솔에서 보내지는 커멘드는 무시합니다.
+			Player p = (Player)sender;
+			if(args[0].equalsIgnoreCase("login")) {
+				if(Utils.getUser(p)!=null) {	//유저가 이미 등록되어있을경우 인증을 진행하지 않습니다.
+					p.sendMessage("이미 인증되셨습니다.");
+				}
+				else {
+					main.loging_players.add(p);
+					main.loging_keys.add(Utils.generateKey());
+					p.sendMessage("\""+main.loging_keys.get(main.loging_players.indexOf(p))+"\"를 디스코드에서 입력해주세요.");
+				}
+			}
+			if(args[0].equalsIgnoreCase("chat")&&p.hasPermission(main.discord_oper))
+				main.AsyncChat = !main.AsyncChat;
+			if(args[0].equalsIgnoreCase("get")) {
+				p.sendMessage(main.users.toString());
+			}
+		}
+		return false;
+	}
+
+}
+```
