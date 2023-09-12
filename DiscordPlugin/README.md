@@ -71,3 +71,62 @@ public void onDisable(){
 }  
 }
 ```
+이러면 서버를 켜서 플러그인이 활성화과 됨과 동시에 봇의 상태가 바뀌는것을 확인할 수 있습니다.
+
+(사진)
+### Person클래스와 커멘드를 통한 로그인 기능
+마인크래프트와 디스코드를 연동하여 게임 내 움직임을 디스코드에 반영해야 하기 때문에 마인크래프트의 플레이어와 플레이어의 디스코드 계정을 연동할 필요가 있습니다. 이를 위해 마인크래프트의 닉네임과 디스코드 아이디를 저장하는 간단한 클래스인 Person클래스를 제작합니다.
+
+_[Person.java](https://github.com/nejukmaster/DiscordVoiceRoomPlugin/blob/master/DiscordPlugin/src/main/java/com/nejukmaster/discordplugin/discordplugin/Person.java)_
+```java
+...
+public class Person {
+
+String mc_nick;	//마인크래프트의 닉네임을 저장합니다.
+String discord_id;	//디스코드 아이디를 저장합니다.
+public boolean isCalling;	//Call을 받고있는지에대한 상태를 저장합니다. 실험적인 기능입니다.
+
+//컨스트럭터 선언
+public Person(Player p, User user) {
+	this.mc_nick = p.getDisplayName();
+	this.discord_id = user.getId();
+	this.isCalling = false;
+}
+
+public Person(String nick, String id) {
+	this.mc_nick = nick;
+	this.discord_id = id;
+}
+
+public void setVoiceChannel(VoiceChannel vc) {
+	Guild guild = main.main_category.getGuild();
+	try {
+		guild.moveVoiceMember(guild.getMember(main.jda.getUserById(this.discord_id)), vc).complete();
+	}catch(IllegalStateException e) {
+		
+	}
+}
+
+public User getUser() {
+	return main.jda.getUserById(this.discord_id);
+}
+
+public Player getPlayer() {
+	return Bukkit.getPlayer(this.mc_nick);
+}
+
+public String getNick() {
+	return this.mc_nick;
+}
+
+public String getID() {
+	return this.discord_id;
+}
+
+public Person setCalling(boolean calling) {
+	this.isCalling = calling;
+	return this;
+}
+
+}
+```
