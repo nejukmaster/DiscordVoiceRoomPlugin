@@ -137,6 +137,7 @@ public Person setCalling(boolean calling) {
 }
 ```
 이로써 Person클래스를 통해 플레이어의 정보를 저장하여 인게임 플레이어와 디스코드 유저에 접근할 수 있게 되었습니다. 다음으로 게임내 커멘드를 사용해 유저를 등록하는 기능을 구현합니다.
+
 _[mainCmds.java](https://github.com/nejukmaster/DiscordVoiceRoomPlugin/blob/master/DiscordPlugin/src/main/java/com/nejukmaster/discordplugin/discordplugin/mainCmds.java)_
 ```java
 
