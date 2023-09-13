@@ -152,15 +152,15 @@ public class mainCmds implements CommandExecutor{
 				if(Utils.getUser(p)!=null) {	//유저가 이미 등록되어있을경우 인증을 진행하지 않습니다.
 					p.sendMessage("이미 인증되셨습니다.");
 				}
-				else {
+				else {	//등록되어있지 않을 경우 등록을 진행합니다.
 					main.loging_players.add(p);
 					main.loging_keys.add(Utils.generateKey());
 					p.sendMessage("\""+main.loging_keys.get(main.loging_players.indexOf(p))+"\"를 디스코드에서 입력해주세요.");
 				}
 			}
-			if(args[0].equalsIgnoreCase("chat")&&p.hasPermission(main.discord_oper))
+			if(args[0].equalsIgnoreCase("chat")&&p.hasPermission(main.discord_oper))	//채팅 동기화 토글
 				main.AsyncChat = !main.AsyncChat;
-			if(args[0].equalsIgnoreCase("get")) {
+			if(args[0].equalsIgnoreCase("get")) {	//디버깅용 커멘드 입니다.
 				p.sendMessage(main.users.toString());
 			}
 		}
