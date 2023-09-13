@@ -179,13 +179,14 @@ _[DiscordEvents.java](https://github.com/nejukmaster/DiscordVoiceRoomPlugin/blob
 
 ...
 public class DiscordEvents extends ListenerAdapter{
-	
+
+	//onMessageReceived는 공개/비공개 text channel에서 메세지가 수신되었을때 호출됩니다. onMessageReceived는 MessageReceivedEvent를 넘겨받습니다. 여기에는 이번 이벤트에 대한 다양한 정보가 저장되어있습니다.
 	@Override
 	public void onMessageReceived(MessageReceivedEvent e) {
-		User user = e.getAuthor();
-		TextChannel tc = e.getTextChannel();
-		Message msg = e.getMessage();
-		if(user.isBot()) return;
+		User user = e.getAuthor();	//메세지를 보낸 유저입니다.
+		TextChannel tc = e.getTextChannel();	//메세지를 보낸 채널의 id입니다.
+		Message msg = e.getMessage();	//수신한 메세지를 얻어옵니다.
+		if(user.isBot()) return;	//봇이 보낸 메세지일경우 무시합니다.
 		if(tc.equals(main.minecraft_chat)) {
 			if(Utils.getPerson(user) != null && main.AsyncChat) {
 				Person p = Utils.getPerson(user);
