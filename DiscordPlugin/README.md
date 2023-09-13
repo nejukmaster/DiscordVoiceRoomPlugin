@@ -169,3 +169,81 @@ public class mainCmds implements CommandExecutor{
 
 }
 ```
+이렇게 등록된 키는 디스코드 채팅에서 확인하여 가입을 승인하게됩니다.
+
+### 디스코드 이벤트
+JDA에서는 디스코드 서버 내에 벌어지는 이벤트(채팅, 통화방 출입....)에 대한 리스너를 제공합니다. 이는 jda.api.hooks.ListenerAdapter를 implement하여 구현합니다.
+
+_[DiscordEvents.java](https://github.com/nejukmaster/DiscordVoiceRoomPlugin/blob/master/DiscordPlugin/src/main/java/com/nejukmaster/discordplugin/discordplugin/events/DiscordEvents.java)_
+```java
+
+...
+public class DiscordEvents extends ListenerAdapter{
+	
+	@Override
+	public void onMessageReceived(MessageReceivedEvent e) {
+		User user = e.getAuthor();
+		TextChannel tc = e.getTextChannel();
+		Message msg = e.getMessage();
+		if(user.isBot()) return;
+		if(tc.equals(main.minecraft_chat)) {
+			if(Utils.getPerson(user) != null && main.AsyncChat) {
+				Person p = Utils.getPerson(user);
+				Bukkit.broadcastMessage("<"+p.getNick()+"> "+msg.getContentRaw());
+			}
+		}
+		else {
+			if(msg.getContentRaw().equalsIgnoreCase("!hello"))
+				tc.sendMessage("Hello, "+ user.getAsMention()).queue();
+			else if(msg.getContentRaw().equalsIgnoreCase("!id")) {
+				System.out.println(tc.getGuild().getIdLong()+"");
+			}
+			if(main.loging_keys.indexOf(msg.getContentRaw())!=-1) {
+				Person p = new Person(main.loging_players.get(main.loging_keys.indexOf(msg.getContentRaw())),msg.getAuthor());
+				main.loging_players.get(main.loging_keys.indexOf(msg.getContentRaw())).sendMessage("ÀÎÁõµÇ¾ú½À´Ï´Ù.");
+				msg.delete().complete();
+				main.users.add(p);
+				main.loging_players.remove(main.loging_keys.indexOf(msg.getContentRaw()));
+				main.loging_keys.remove(msg.getContentRaw());
+				return;
+			}
+		}
+	}
+	
+	@Override
+	public void onReady(ReadyEvent e){
+		System.out.println("Discord Ready!");
+		Guild guild = main.jda.getGuildById(main.guild_id);
+		if(guild == null) {
+			System.out.println("Can not find Discord Server!");
+			return;
+		}
+		List<Category> categories = main.jda.getCategoriesByName("minecraft", true);
+		if(categories.size() < 1) {
+			main.main_category = guild.createCategory("minecraft").complete();
+		}
+		else {
+			main.main_category = categories.get(0);
+		}
+		
+		List<VoiceChannel> voice_channels = main.main_category.getVoiceChannels();
+		ArrayList<String> names = new ArrayList<>();
+		for(VoiceChannel vc : voice_channels) 
+			names.add(vc.getName());
+		if(names.indexOf("MAIN HALL") == -1)
+			main.main_hall = main.main_category.createVoiceChannel("MAIN HALL").complete();
+		else
+			main.main_hall = voice_channels.get(names.indexOf("MAIN HALL"));
+		
+		List<TextChannel> chat_channels = main.main_category.getTextChannels();
+		names = new ArrayList<>();
+		for(TextChannel tc : chat_channels)
+			names.add(tc.getName());
+		if(names.indexOf("minecraft-chat") == -1)
+			main.minecraft_chat = main.main_category.createTextChannel("minecraft-chat").complete();
+		else
+			main.minecraft_chat = chat_channels.get(names.indexOf("minecraft-chat"));
+	}
+
+}
+```
