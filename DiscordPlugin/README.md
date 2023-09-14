@@ -187,19 +187,19 @@ public class DiscordEvents extends ListenerAdapter{
 		TextChannel tc = e.getTextChannel();	//메세지를 보낸 채널의 id입니다.
 		Message msg = e.getMessage();	//수신한 메세지를 얻어옵니다.
 		if(user.isBot()) return;	//봇이 보낸 메세지일경우 무시합니다.
-		if(tc.equals(main.minecraft_chat)) {
+		if(tc.equals(main.minecraft_chat)) {	//디스코드 채팅 연동 기능입니다.
 			if(Utils.getPerson(user) != null && main.AsyncChat) {
 				Person p = Utils.getPerson(user);
 				Bukkit.broadcastMessage("<"+p.getNick()+"> "+msg.getContentRaw());
 			}
 		}
 		else {
-			if(msg.getContentRaw().equalsIgnoreCase("!hello"))
+			if(msg.getContentRaw().equalsIgnoreCase("!hello"))	//테스트용 커멘드 입니다.
 				tc.sendMessage("Hello, "+ user.getAsMention()).queue();
 			else if(msg.getContentRaw().equalsIgnoreCase("!id")) {
 				System.out.println(tc.getGuild().getIdLong()+"");
 			}
-			if(main.loging_keys.indexOf(msg.getContentRaw())!=-1) {
+			if(main.loging_keys.indexOf(msg.getContentRaw())!=-1) {	//인증키가 일치할 경우 플레이어를 인증완료하고 등록합니다.
 				Person p = new Person(main.loging_players.get(main.loging_keys.indexOf(msg.getContentRaw())),msg.getAuthor());
 				main.loging_players.get(main.loging_keys.indexOf(msg.getContentRaw())).sendMessage("ÀÎÁõµÇ¾ú½À´Ï´Ù.");
 				msg.delete().complete();
@@ -212,14 +212,14 @@ public class DiscordEvents extends ListenerAdapter{
 	}
 	
 	@Override
-	public void onReady(ReadyEvent e){
+	public void onReady(ReadyEvent e){	//봇이 준비되었을때 호출됩니다.
 		System.out.println("Discord Ready!");
 		Guild guild = main.jda.getGuildById(main.guild_id);
 		if(guild == null) {
 			System.out.println("Can not find Discord Server!");
 			return;
 		}
-		List<Category> categories = main.jda.getCategoriesByName("minecraft", true);
+		List<Category> categories = main.jda.getCategoriesByName("minecraft", true);	//마인크래프트 카테고리가 없을경우 서버에 생성합니다.
 		if(categories.size() < 1) {
 			main.main_category = guild.createCategory("minecraft").complete();
 		}
@@ -231,7 +231,7 @@ public class DiscordEvents extends ListenerAdapter{
 		ArrayList<String> names = new ArrayList<>();
 		for(VoiceChannel vc : voice_channels) 
 			names.add(vc.getName());
-		if(names.indexOf("MAIN HALL") == -1)
+		if(names.indexOf("MAIN HALL") == -1)	//MAIN HALL 보이스 채널이 없으면 생성합니다.
 			main.main_hall = main.main_category.createVoiceChannel("MAIN HALL").complete();
 		else
 			main.main_hall = voice_channels.get(names.indexOf("MAIN HALL"));
@@ -240,7 +240,7 @@ public class DiscordEvents extends ListenerAdapter{
 		names = new ArrayList<>();
 		for(TextChannel tc : chat_channels)
 			names.add(tc.getName());
-		if(names.indexOf("minecraft-chat") == -1)
+		if(names.indexOf("minecraft-chat") == -1)	//마인크래프트 채팅 텍스트 채널이 없으면 생성합니다.
 			main.minecraft_chat = main.main_category.createTextChannel("minecraft-chat").complete();
 		else
 			main.minecraft_chat = chat_channels.get(names.indexOf("minecraft-chat"));
