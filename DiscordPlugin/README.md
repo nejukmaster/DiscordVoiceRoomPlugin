@@ -383,3 +383,84 @@ public class MinecraftEvents implements Listener{
 
 }
 ```
+
+### VoiceRoom과 VoiceCmds
+이제 본격적으로 VoiceRoom클래스를 구성해보겠습니다. VoiceRoom이 포함해야할 정보는 표시될 이름/음성채널 ID/시점/종점 데이터이며 이를 모듈화한 간단한 클래스로 생성합니다.
+
+_[VoiceRoom](https://github.com/nejukmaster/DiscordVoiceRoomPlugin/blob/master/DiscordPlugin/src/main/java/com/nejukmaster/discordplugin/discordplugin/voice_room/VoiceRoom.java)_
+```java
+...
+public class VoiceRoom {
+	
+	String name;
+	String id;
+	Location start_pos;
+	Location end_pos;
+	
+	public VoiceRoom(Category category, String name, Location start_pos, Location end_pos) {	//name으로 음성채널을 생성하여 VoiceRoom을 생성하는 컨스트럭터
+		this.name = name;
+		VoiceChannel room = category.createVoiceChannel(name).complete();
+		this.id = room.getId();
+		this.start_pos = start_pos;
+		this.end_pos = end_pos;
+	}
+	
+	public VoiceRoom(String name, String id, Location start_pos, Location end_pos) {	//이미 생성된 음성채널의 ID를 받아와 VoiceRoom을 생성하는 컨스트럭터
+		this.name = name;
+		this.id = id;
+		this.start_pos = start_pos;
+		this.end_pos = end_pos;
+	}
+
+	//각 변수에 대한 접근을 모듈화 합니다.
+	public VoiceChannel getChannel() {
+		VoiceChannel channel = main.jda.getVoiceChannelById(this.id);
+		return channel;
+	}
+	
+	public String getID() {
+		return id;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public Location[] getLocation() {
+		return new Location[] {start_pos,end_pos};
+	}
+}
+```
+이 VoiceRoom을 생성할 명령어 역시 따로 작성해줍니다.
+
+_[VoiceCmds](https://github.com/nejukmaster/DiscordVoiceRoomPlugin/blob/master/DiscordPlugin/src/main/java/com/nejukmaster/discordplugin/discordplugin/voice_room/VoiceCmds.java)_
+```java
+...
+public class VoiceCmds implements CommandExecutor{
+
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		// TODO Auto-generated method stub
+		if(sender instanceof Player) {
+			Player p = (Player)sender;
+			if(args[0].equalsIgnoreCase("debug"))	//디버깅용 커멘드 입니다.
+				for(VoiceRoom vr : MinecraftEvents.voice_rooms)
+					p.sendMessage(vr.getID() + ":" + vr.getName() + ":" + vr.getLocation()[0] + ":" + vr.getLocation()[1]);
+			if(args[0].equalsIgnoreCase("create")&&p.hasPermission(main.discord_oper)) {	//VoiceRoom을 생성하는 커멘드입니다.
+				if(args.length < 2) {	//커멘드를 제대로 입력하지 않았을 경우 커멘드의 도움말을 띄웁니다.
+					p.sendMessage("/voice create [room name]");
+				}
+				else if(MinecraftEvents.pos1 == null || MinecraftEvents.pos2 == null) {	//시점,종점 좌표가 제대로 설정되지 않았을경우 경고를 띄웁니다.
+					p.sendMessage("pos1, 혹은 pos2가 미설정 상태입니다.");
+				}
+				else {
+					MinecraftEvents.voice_rooms.add(VoiceUtils.createVoiceRoom(args[1]));
+					p.sendMessage(args[1]+"(이)가 생성되었습니다.");
+				}
+			}
+		}
+		return false;
+	}
+
+}
+```
