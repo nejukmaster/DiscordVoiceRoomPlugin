@@ -364,16 +364,16 @@ public class MinecraftEvents implements Listener{
 		VoiceRoom[] r = e.getRooms();
 		if(Utils.getPerson(p)!=null) {
 			Person per = Utils.getPerson(p);
-			if(r[1] != null && !per.isCalling) {	//통화중이 아니고, 
+			if(r[1] != null && !per.isCalling) {	//통화중이 아니고, 이동한 VoiceRoom이 빈곳이 아닐경우 음성채팅방을 옮깁니다.
 				per.setVoiceChannel(r[1].getChannel());
 			}
-			else
+			else	//그렇지 않을경우 MAIN HALL로 옮깁니다.
 				per.setVoiceChannel(main.jda.getVoiceChannelsByName("MAIN HALL", true).get(0));
 		}
 	}
 	
 	@EventHandler
-	public void PlayerChatHook(final AsyncPlayerChatEvent e) {
+	public void PlayerChatHook(final AsyncPlayerChatEvent e) {	//PlayerChatHook은 플레이어가 채팅을 보냈을경우 호출됩니다.
 		Player p = e.getPlayer();
 		String msg = e.getMessage();
 		if(Utils.getPerson(p) != null && main.AsyncChat) {
