@@ -464,3 +464,36 @@ public class VoiceCmds implements CommandExecutor{
 
 }
 ```
+### 이벤트와 커멘드 등록
+앞서 제작한 모든 이벤트와 커멘드들은 메인클래스에서 등록하는 작업을 진행해줍니다. 이벤트는 org.bukkit.plugin.PluginManager의 registerEvents메서드를 통해, 커멘드는 getCommand로 PluginCommand를 얻어와 해당 PluginCommand의 setExecutor메서드로 등록합니다.
+
+_main.java_
+```java
+public final class main extends JavaPlugin{
+
+	...
+	
+	@Override
+	public void onEnable(){
+		...
+		initEvents();
+		initCmds();
+
+		...
+	}
+	
+	...
+	public void initEvents() {	//이벤트 등록
+		PluginManager pm = getServer().getPluginManager();
+		pm.registerEvents(new MinecraftEvents(), this);
+		pm.registerEvents(new RegisterCustomEvents(), this);
+	}
+	
+	public void initCmds() {	//커멘드 등록
+		getCommand("voice").setExecutor(new VoiceCmds());
+		getCommand("discord").setExecutor(new mainCmds());
+		getCommand("call").setExecutor(new CallCmds());
+	}
+
+}
+```
