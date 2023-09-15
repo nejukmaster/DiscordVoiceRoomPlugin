@@ -248,3 +248,138 @@ public class DiscordEvents extends ListenerAdapter{
 
 }
 ```
+
+### 사용자 지정 이벤트와 이벤트 리스너
+이번에는 마인크래프트 게임내에서 호출될 이벤트들을 등록할 겁니다. 이 작업은 먼저 org.bukkit.event.Listener 인터페이스를 implement한 Event클래스를 생성하여 메인클래스에서 현재 서버를 얻어와 서버의 PluginManager에  registerEvents로 등록하 이루어집니다. 하지만 그전에, 제작의 편의를 위하여 각 플레이어가 다른 VoiceRoom의 영역으로 넘어갔을때 호출될 커스텀 이벤트를 제작하도록 하겠습니다.
+
+사용자 정의 이벤트는 org.bukkit.event.Event클래스를 extends한후 하위 메서드들을 구현하고, 이를 기존 이벤트에서 호출하여 제작합니다.
+
+_[VoiceRoomEnterEvent](https://github.com/nejukmaster/DiscordVoiceRoomPlugin/blob/master/DiscordPlugin/src/main/java/com/nejukmaster/discordplugin/discordplugin/voice_room/VoiceRoomEnterEvent.java)_
+```java
+public class VoiceRoomEnterEvent extends Event implements Cancellable{
+	
+	private boolean isCancelled;
+	private static HandlerList handlers = new HandlerList();
+	
+	Player player;
+	VoiceRoom previous_room;
+	VoiceRoom next_room;
+	
+	public VoiceRoomEnterEvent(Player p, VoiceRoom previous_room, VoiceRoom next_room) {	//컨스트럭터 입니다. 이벤트의 발동 조건이 충족되었을때, 이벤트를 생성하여 버킷의 플러그인매니져가 call을 할 것이기 때문에 필요합니다.
+		this.previous_room = previous_room;
+		this.next_room = next_room;
+		this.player = p;
+	}
+	
+	public VoiceRoom[] getRooms() {	//이전 VoiceRoom과 바뀐 VoiceRoom을 배열로 반환하는 메서드입니다.
+		return new VoiceRoom[]{previous_room, next_room};
+	}
+	
+	public Player getPlayer() {	//VoiceRoom이 바뀐 플레이어를 반환합니다.
+		return player;
+	}
+	
+	//하위 메서드 구현 부분입니다. 특별히 어떤 기능을 하도록 구현된것은 없습니다.
+	@Override
+	public boolean isCancelled() {
+		// TODO Auto-generated method stub
+		return this.isCancelled;
+	}
+
+	@Override
+	public void setCancelled(boolean cancel) {
+		// TODO Auto-generated method stub
+		this.isCancelled = cancel;
+	}
+
+	@Override
+	public HandlerList getHandlers() {
+		// TODO Auto-generated method stub
+		return handlers;
+	}
+	
+	public static HandlerList getHandlerList() {
+		// TODO Auto-generated method stub
+		return handlers;
+	}
+
+}
+```
+이렇게 만들어진 CustomEvent는 Listener에서 기존 이벤트에 호출되어야 합니다. 따라서 코드의 가독성 향상을 위해 본래 기능하는 Listener 이외에 사용자 정의 Event를 호출할 Listener를 하나 생성합니다.
+
+_[RegisterCustomEvents](https://github.com/nejukmaster/DiscordVoiceRoomPlugin/blob/master/DiscordPlugin/src/main/java/com/nejukmaster/discordplugin/discordplugin/events/RegisterCustomEvents.java)_
+```java
+public class RegisterCustomEvents implements Listener{
+	
+	@EventHandler
+	public void PlayerMoveHook(final PlayerMoveEvent e) {	//VoiceRoomEnterEvent는 플레이어의 움직임에 관련된 이벤트이므로 PlayerMoveHook을 사용하여 호출합니다.
+		Player p = e.getPlayer();
+		Location from = e.getFrom();	//플레이어의 이전위치를 가져옵니다.
+		Location to = e.getTo();	//플레이어의 나중위치를 가져옵니다.
+		if(VoiceUtils.findVoiceRoom(from) != VoiceUtils.findVoiceRoom(to)) {	//현재위치와 나중위치의 VoiceRoom이 다르다면 VoiceRoomEnterEvent를 호출합니다.
+			VoiceRoomEnterEvent event = new VoiceRoomEnterEvent(e.getPlayer(), VoiceUtils.findVoiceRoom(from), VoiceUtils.findVoiceRoom(to));
+			Bukkit.getPluginManager().callEvent(event);
+		}
+	}
+}
+```
+이로써 우리는 Listener에서 VoiceRoomEnterEvent를 호출할 수 있게 되었습니다.
+
+이후 우리는 실제로 인 게임상 기능을 담당할 이벤트를 작성합니다.
+
+```java
+...
+public class MinecraftEvents implements Listener{
+	
+	public static Location pos1 = null;	//VoiceRoom을 설정할때 시점을 담는 변수입니다.
+	public static Location pos2 = null;	//VoiceRoom을 설정할때 종점을 담는 변수입니다.
+	public static ArrayList<VoiceRoom> voice_rooms = new ArrayList<>();	//현재 등록된 VoiceRoom을 담는 리스트 입니다.
+	public static ArrayList<CallRoom> call_rooms = new ArrayList<>();	//현재 사용중인 통화방을 담는 리스트입니다. 실험적인 기능 입니다.
+	
+	@EventHandler
+	public void PlayerInteractedHook(final PlayerInteractEvent e) {	//PlayerInteractedHook은 플레이어가 좌클릭/우클릭을 사용했을때 호출됩니다.
+		Player p = e.getPlayer();
+		Action a = e.getAction();
+
+		Block b = e.getClickedBlock();	//클릭한 블럭의 정보를 가져옵니다.
+		ItemStack is = p.getInventory().getItemInMainHand().clone();	//오른손에 있는 아이템의 정보를 가져옵니다.
+		if(e.getHand() == EquipmentSlot.HAND) {	//상호작용한 손이 오른손일경우에만 작동합니다. 이처리를 하지 않으면 왼손이 상호작용 할때도 
+			if(is.getType().equals(Material.WOODEN_SHOVEL)&&p.hasPermission(main.discord_oper)) {	//상호작용한 아이템이 나무 삽 일경우, 그리고 상호작용한 플레이어 관리자 권한을 가지고있을경우
+				if(a.equals(Action.RIGHT_CLICK_BLOCK)) {	//우클릭을 사용했을때 사용한 좌표를 시점으로 설정합니다.
+					pos1 = b.getLocation();
+					p.sendMessage("pos1이 "+pos1+"로 설정되었습니다.");
+				}
+				if(a.equals(Action.LEFT_CLICK_BLOCK)) {		//좌클릭을 사용했을때 사용한 좌표를 종점으로 설정합니다.
+					pos2 = b.getLocation();
+					p.sendMessage("pos2가 "+pos2+"로 설정되었습니다.");
+				} 
+				e.setCancelled(true);	//이벤트를 캔슬합니다. 좌클릭으로인한 블럭파괴나 우클릭으로인한 블럭 변형등을 방지하기위한 조치입니다.
+			}
+		}
+	}
+	
+	@EventHandler
+	public void VoiceRoomEnterHook(final VoiceRoomEnterEvent e) {	//플레이어의 다른 VoiceRoom 영역으로 들어갔을때 호출됩니다.
+		Player p = e.getPlayer();
+		VoiceRoom[] r = e.getRooms();
+		if(Utils.getPerson(p)!=null) {
+			Person per = Utils.getPerson(p);
+			if(r[1] != null && !per.isCalling) {	//통화중이 아니고, 
+				per.setVoiceChannel(r[1].getChannel());
+			}
+			else
+				per.setVoiceChannel(main.jda.getVoiceChannelsByName("MAIN HALL", true).get(0));
+		}
+	}
+	
+	@EventHandler
+	public void PlayerChatHook(final AsyncPlayerChatEvent e) {
+		Player p = e.getPlayer();
+		String msg = e.getMessage();
+		if(Utils.getPerson(p) != null && main.AsyncChat) {
+			main.minecraft_chat.sendMessage("["+p.getName()+"]:"+msg).queue();
+		}
+	}
+
+}
+```
