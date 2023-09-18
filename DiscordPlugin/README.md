@@ -153,7 +153,7 @@ public class mainCmds implements CommandExecutor{
 				}
 				else {	//등록되어있지 않을 경우 등록을 진행합니다.
 					main.loging_players.add(p);
-					main.loging_keys.add(Utils.generateKey());
+					main.loging_keys.add(Utils.generateKey());	//Utils.generateKey는 무작위 4자리 숫자를 생성합니다.
 					p.sendMessage("\""+main.loging_keys.get(main.loging_players.indexOf(p))+"\"를 디스코드에서 입력해주세요.");
 				}
 			}
